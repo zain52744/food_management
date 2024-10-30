@@ -1,25 +1,94 @@
-food_menu = {
-    "fast_food": {"zinger_burger": 300,"chicken_burger": 350,"beef_burger": 700},
-    "desi_food": {"chicken_karahi": 1500,"beef_karahi": 1700,"mutton_karahi": 2000}
-}
+import mysql.connector
 
-stock = {"fast_food_stock": {"chicken": 5,  "beef": 5 },"desi_food_stock": {"chicken": 5, "beef": 5,  "mutton": 5}}
+
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="F4d220190@"
+)
+
+cursor = db.cursor()
+
+
+cursor.execute("CREATE DATABASE IF NOT EXISTS food_management")
+cursor.execute("USE food_management")
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS menu (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        category VARCHAR(50),
+        item_name VARCHAR(50),
+        price INT
+    )
+""")
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS stock (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        category VARCHAR(50),
+        item_name VARCHAR(50),
+        quantity INT
+    )
+""")
+
+
+menu_items = {'fast_food': {'zinger_burger': 300,'chicken_burger': 350,'beef_burger': 700},
+            'desi_food': {'chicken_karahi': 1500,'beef_karahi': 1700,'mutton_karahi': 2000}}
+
+stock_items = {'fast_food': {'chicken': 5,'beef': 5,},'desi_food': {'chicken': 5,'beef': 5,'mutton': 5,}}
+
+def insert_menu_items(menu):
+    for category, items in menu.items():
+        for item_name, price in items.items():
+            cursor.execute("INSERT INTO menu (category, item_name, price) VALUES (%s, %s, %s)", (category, item_name, price))
+
+
+def insert_stock_items(stock):
+    for category, items in stock.items():
+        for item_name, quantity in items.items():
+            cursor.execute("INSERT INTO stock (category, item_name, quantity) VALUES (%s, %s, %s)", (category, item_name, quantity))
+
+
+insert_menu_items(menu_items)
+insert_stock_items(stock_items)
+
+db.commit()
+
+def fetch_menu(category):
+    query = "SELECT item_name, price FROM menu WHERE category = %s"
+    cursor.execute(query, (category,))
+    results = cursor.fetchall()
+    return dict(results)
+
+def check_stock(item_name):
+    query = "SELECT quantity FROM stock WHERE item_name = %s"
+    cursor.execute(query, (item_name,))
+    result = cursor.fetchone()
+    cursor.fetchall()  
+    return result[0] if result else 0
+
+def update_stock(item_name):
+    query = "UPDATE stock SET quantity = quantity - 1 WHERE item_name = %s"
+    cursor.execute(query, (item_name,))
+    db.commit()
 
 def process_fast_food_order(item, ordered_items):
-    if item == "chicken_burger" or item == "zinger_burger":
-        if stock["fast_food_stock"]["chicken"] > 0:
+    if item in ["chicken_burger", "zinger_burger"]:
+        stock = check_stock("chicken")
+        if stock > 0:
             print("Wait sir, your order is in process.")
-            stock["fast_food_stock"]["chicken"] -= 1
-            ordered_items.append((item, food_menu["fast_food"][item]))
-            print(f"Updated chicken stock: {stock['fast_food_stock']['chicken']}kg")
+            update_stock("chicken")
+            ordered_items.append((item, fetch_menu("fast_food")[item]))
+            print(f"Updated chicken stock: {check_stock('chicken')} kg")
         else:
             print("Sir, we are sorry, the chicken is out of stock.")
     elif item == "beef_burger":
-        if stock["fast_food_stock"]["beef"] > 0:
+        stock = check_stock("beef")
+        if stock > 0:
             print("Wait sir, your order is in process.")
-            stock["fast_food_stock"]["beef"] -= 1
-            ordered_items.append((item, food_menu["fast_food"][item]))
-            print(f"Updated beef stock: {stock['fast_food_stock']['beef']}kg")
+            update_stock("beef")
+            ordered_items.append((item, fetch_menu("fast_food")[item]))
+            print(f"Updated beef stock: {check_stock('beef')} kg")
         else:
             print("Sir, we are sorry, the beef is out of stock.")
     else:
@@ -27,27 +96,30 @@ def process_fast_food_order(item, ordered_items):
 
 def process_desi_food_order(item, ordered_items):
     if item == "chicken_karahi":
-        if stock["desi_food_stock"]["chicken"] > 0:
+        stock = check_stock("chicken")
+        if stock > 0:
             print("Wait sir, your order is in process.")
-            stock["desi_food_stock"]["chicken"] -= 1
-            ordered_items.append((item, food_menu["desi_food"][item]))
-            print(f"Updated chicken stock: {stock['desi_food_stock']['chicken']}kg")
+            update_stock("chicken")
+            ordered_items.append((item, fetch_menu("desi_food")[item]))
+            print(f"Updated chicken stock: {check_stock('chicken')} kg")
         else:
             print("Sir, we are sorry, the chicken is out of stock.")
     elif item == "beef_karahi":
-        if stock["desi_food_stock"]["beef"] > 0:
+        stock = check_stock("beef")
+        if stock > 0:
             print("Wait sir, your order is in process.")
-            stock["desi_food_stock"]["beef"] -= 1
-            ordered_items.append((item, food_menu["desi_food"][item]))
-            print(f"Updated beef stock: {stock['desi_food_stock']['beef']}kg")
+            update_stock("beef")
+            ordered_items.append((item, fetch_menu("desi_food")[item]))
+            print(f"Updated beef stock: {check_stock('beef')} kg")
         else:
             print("Sir, we are sorry, the beef is out of stock.")
     elif item == "mutton_karahi":
-        if stock["desi_food_stock"]["mutton"] > 0:
+        stock = check_stock("mutton")
+        if stock > 0:
             print("Wait sir, your order is in process.")
-            stock["desi_food_stock"]["mutton"] -= 1
-            ordered_items.append((item, food_menu["desi_food"][item]))
-            print(f"Updated mutton stock: {stock['desi_food_stock']['mutton']}kg")
+            update_stock("mutton")
+            ordered_items.append((item, fetch_menu("desi_food")[item]))
+            print(f"Updated mutton stock: {check_stock('mutton')} kg")
         else:
             print("Sir, we are sorry, the mutton is out of stock.")
     else:
@@ -67,10 +139,11 @@ def main():
         user_choice = input("Please select a category (fast food / desi food / fast food stock / desi food stock / exit): ").lower()
 
         if user_choice == "fast food":
-            print("Fast Food Menu:", food_menu["fast_food"])
-            order_item = input("Please select an item from the menu (zinger_burger / chicken_burger / beef_burger) or type 'done' to finish: ").lower()
+            menu = fetch_menu("fast_food")
+            print("Fast Food Menu:", menu)
+            order_item = input("Please select an item from the menu or type 'done' to finish: ").lower()
             while order_item != "done":
-                if order_item in food_menu["fast_food"]:
+                if order_item in menu:
                     process_fast_food_order(order_item, ordered_items)
                 else:
                     print("Invalid item selection. Please select from the menu.")
@@ -79,10 +152,11 @@ def main():
                 calculate_bill(ordered_items)
 
         elif user_choice == "desi food":
-            print("Desi Food Menu:", food_menu["desi_food"])
-            order_item = input("Please select an item from the menu (chicken_karahi / beef_karahi / mutton_karahi) or type 'done' to finish: ").lower()
+            menu = fetch_menu("desi_food")
+            print("Desi Food Menu:", menu)
+            order_item = input("Please select an item from the menu or type 'done' to finish: ").lower()
             while order_item != "done":
-                if order_item in food_menu["desi_food"]:
+                if order_item in menu:
                     process_desi_food_order(order_item, ordered_items)
                 else:
                     print("Invalid item selection. Please select from the menu.")
@@ -91,10 +165,14 @@ def main():
                 calculate_bill(ordered_items)
 
         elif user_choice == "fast food stock":
-            print("Fast Food Stock:", stock["fast_food_stock"])
+            query = "SELECT item_name, quantity FROM stock WHERE category = 'fast_food'"
+            cursor.execute(query)
+            print("Fast Food Stock:", dict(cursor.fetchall()))
 
         elif user_choice == "desi food stock":
-            print("Desi Food Stock:", stock["desi_food_stock"])
+            query = "SELECT item_name, quantity FROM stock WHERE category = 'desi_food'"
+            cursor.execute(query)
+            print("Desi Food Stock:", dict(cursor.fetchall()))
 
         elif user_choice == "exit":
             print("Thank you for using the food management system.")
@@ -102,6 +180,6 @@ def main():
         else:
             print("Invalid choice. Please select either 'fast food', 'desi food', 'fast food stock', or 'desi food stock'.")
 
-
 if __name__ == "__main__":
     main()
+    db.close()
