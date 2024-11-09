@@ -1,0 +1,35 @@
+1. categories
+2.menu
+3.stock
+4.customer
+5.orders
+6.payment
+7.average profit/loss
+
+9.employe
+10.discount
+11.bill
+---------------------------------------
+
+categories(no action)
+menu(add)
+stock(no)
+4.customer(no)
+5.orders(no)
+6.payment(no)
+7.average profit/loss(no)
+8. dessert(no)
+9.employe(no)
+10.discount(no)
+11.bill(no)
+-----------------------------------------
+
+
+attributes of tables  
+rename db.py to database.py  
+steps to implement
+1.erd through 3nf   clear relationship defining (draw.io)   no implementation without erd
+2.relation of primary and foreign keys no redundancy
+3.structure code with different files for each table
+4.crud on each file , get by specific id
+5.api implementation on point 4
