@@ -1,9 +1,7 @@
-from database import DBhelper
-
 class Categories:
-    def __init__(self):
-        self.db = DBhelper()
-    
+    def __init__(self, db):
+        self.db = db 
+
     def create_table(self):
         query = """
         CREATE TABLE IF NOT EXISTS categories (
