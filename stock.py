@@ -16,7 +16,7 @@ class Stock:
         print("Stock table created.")
 
     def insert_initial_stock(self):
-        """Insert initial stock data into the database."""
+        
         items = [
             ('zinger_burger', 5.0),
             ('chicken_burger', 5.0),
@@ -30,7 +30,7 @@ class Stock:
         print("Initial stock inserted.")
 
     def check_stock(self, item_name, required_quantity):
-        """Check if there is enough stock for the required quantity."""
+        
         query = "SELECT quantity FROM stock WHERE LOWER(item_name) = LOWER(%s)"
         result = self.db.fetch_one(query, (item_name,))
         
@@ -45,7 +45,7 @@ class Stock:
         return False
 
     def update_stock(self, item_name, used_quantity):
-        """Reduce the stock by the specified quantity."""
+        
         query = """
         UPDATE stock 
         SET quantity = quantity - %s 

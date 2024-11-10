@@ -6,7 +6,7 @@ class Menu:
         self.db = db
 
     def create_table(self):
-        """Create the menu table."""
+        
         query = """
         CREATE TABLE IF NOT EXISTS menu (
             m_ID INT PRIMARY KEY AUTO_INCREMENT,

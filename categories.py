@@ -19,6 +19,6 @@ class Categories:
         self.db.execute_many(query, values)
 
     def get_categories(self):
-        """Retrieve and display all categories."""
+        
         query = "SELECT ca_ID, category_name FROM categories"
         return self.db.fetch_all(query)

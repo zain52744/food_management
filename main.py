@@ -11,7 +11,7 @@ food_menu = {
 }
 
 def reset_tables(db):
-    """Reset all tables by dropping them."""
+    
     tables = ['orders', 'menu', 'customer', 'categories', 'stock']
     for table in tables:
         query = f"DROP TABLE IF EXISTS {table}"
