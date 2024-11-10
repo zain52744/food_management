@@ -19,7 +19,7 @@ class DBhelper:
     def execute_query(self, query, values=None):
         
         if self.conn:
-            cursor = self.conn.cursor()
+            cursor = self.conn.cursor(buffered=True)
             try:
                 if values:
                     cursor.execute(query, values)
@@ -35,7 +35,7 @@ class DBhelper:
     def execute_many(self, query, values):
         
         if self.conn:
-            cursor = self.conn.cursor()
+            cursor = self.conn.cursor(buffered=True)
             try:
                 cursor.executemany(query, values)
                 self.conn.commit()
@@ -48,7 +48,7 @@ class DBhelper:
     def fetch_one(self, query, values=None):
         
         if self.conn:
-            cursor = self.conn.cursor()
+            cursor = self.conn.cursor(buffered=True)
             try:
                 cursor.execute(query, values)
                 return cursor.fetchone()
@@ -61,7 +61,7 @@ class DBhelper:
     def fetch_all(self, query, values=None):
         
         if self.conn:
-            cursor = self.conn.cursor()
+            cursor = self.conn.cursor(buffered=True)
             try:
                 cursor.execute(query, values)
                 return cursor.fetchall()

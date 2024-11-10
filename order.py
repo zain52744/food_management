@@ -31,3 +31,4 @@ class Order:
             self.db.execute_query(query, values)
 
         print("Order placed successfully!")
+
