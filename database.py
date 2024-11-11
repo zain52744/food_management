@@ -71,18 +71,18 @@ class DBhelper:
             self.conn.close()
             print("Database connection closed.")
 
-    def reset_tables(self):
+    # def reset_tables(self):
         
-        self.execute_query("SET foreign_key_checks = 0")
+    #     self.execute_query("SET foreign_key_checks = 0")
 
         
-        tables = ['orders', 'menu', 'customer', 'categories', 'stock', 'bill']
+    #     tables = ['orders', 'menu', 'customer', 'categories', 'stock', 'bill']
         
        
-        for table in tables:
-            query = f"DROP TABLE IF EXISTS {table}"
-            self.execute_query(query)
-            print(f"Table {table} has been dropped.")
+    #     for table in tables:
+    #         query = f"DROP TABLE IF EXISTS {table}"
+    #         self.execute_query(query)
+    #         print(f"Table {table} has been dropped.")
 
         
-        self.execute_query("SET foreign_key_checks = 1")
+    #     self.execute_query("SET foreign_key_checks = 1")
