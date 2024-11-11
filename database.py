@@ -3,7 +3,6 @@ import mysql.connector
 class DBhelper:
     def __init__(self):
         try:
-            
             self.conn = mysql.connector.connect(
                 host="localhost",
                 user="root",
@@ -17,7 +16,6 @@ class DBhelper:
             self.conn = None
 
     def execute_query(self, query, values=None):
-        
         if self.conn:
             cursor = self.conn.cursor(buffered=True)
             try:
@@ -33,7 +31,6 @@ class DBhelper:
                 cursor.close()
 
     def execute_many(self, query, values):
-        
         if self.conn:
             cursor = self.conn.cursor(buffered=True)
             try:
@@ -46,7 +43,6 @@ class DBhelper:
                 cursor.close()
 
     def fetch_one(self, query, values=None):
-        
         if self.conn:
             cursor = self.conn.cursor(buffered=True)
             try:
@@ -59,7 +55,6 @@ class DBhelper:
                 cursor.close()
 
     def fetch_all(self, query, values=None):
-        
         if self.conn:
             cursor = self.conn.cursor(buffered=True)
             try:
@@ -72,7 +67,22 @@ class DBhelper:
                 cursor.close()
 
     def close_connection(self):
-        
         if self.conn and self.conn.is_connected():
             self.conn.close()
             print("Database connection closed.")
+
+    def reset_tables(self):
+        
+        self.execute_query("SET foreign_key_checks = 0")
+
+        
+        tables = ['orders', 'menu', 'customer', 'categories', 'stock', 'bill']
+        
+       
+        for table in tables:
+            query = f"DROP TABLE IF EXISTS {table}"
+            self.execute_query(query)
+            print(f"Table {table} has been dropped.")
+
+        
+        self.execute_query("SET foreign_key_checks = 1")

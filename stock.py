@@ -15,6 +15,12 @@ class Stock:
         self.db.execute_query(query)
         print("Stock table created.")
 
+    def item_exists(self, item_name):
+       
+        query = "SELECT COUNT(*) FROM stock WHERE LOWER(item_name) = LOWER(%s)"
+        result = self.db.fetch_one(query, (item_name,))
+        return result[0] > 0
+
     def insert_initial_stock(self):
         
         items = [
@@ -25,9 +31,12 @@ class Stock:
             ('beef_karahi', 5.0),
             ('mutton_karahi', 5.0)
         ]
+
         query = "INSERT INTO stock (item_name, quantity) VALUES (%s, %s)"
-        self.db.execute_many(query, items)
-        print("Initial stock inserted.")
+        for item in items:
+            item_name, quantity = item
+            if not self.item_exists(item_name):
+                self.db.execute_query(query, (item_name, quantity))
 
     def check_stock(self, item_name, required_quantity):
         
