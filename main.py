@@ -3,9 +3,9 @@ from menu import Menu
 from customer import Customer
 from order import Order
 from stock import Stock
-from bill import Bill  
+from bill import Bill
 from database import DBhelper
-
+from categories import display_categories_and_get_choice
 
 food_menu = {
     "Fast Food": {"zinger_burger": 300, "chicken_burger": 350, "beef_burger": 700},
@@ -13,7 +13,6 @@ food_menu = {
 }
 
 def initialize_tables(db):
-    
     categories = Categories(db)
     categories.create_table()
     categories.insert_categories()
@@ -35,25 +34,6 @@ def initialize_tables(db):
     bill = Bill(db)
     bill.create_table()
 
-def display_categories_and_get_choice(db):
-    categories = Categories(db)
-    category_list = categories.get_categories()
-
-    if not category_list:
-        print("No categories available.")
-        return None
-
-    print("Available categories:")
-    for category in category_list:
-        print(f"{category[0]}. {category[1]}")
-
-    category_id = input("Please enter the number of the category you like to view: ").strip()
-
-    if category_id.isdigit() and int(category_id) in [cat[0] for cat in category_list]:
-        return int(category_id)
-    else:
-        print("Invalid selection. Please try again.")
-        return None
 
 def show_items_by_category(db, category_id):
     categories = Categories(db)
@@ -102,21 +82,17 @@ def get_order_items(db, category_name):
             item_name = list(menu_items.keys())[int(item_choice) - 1]
 
             if category_name == "Fast Food":
-                required_quantity = 1  
-                stock_deduction = 0.5  
+                required_quantity = 1
             else:
                 try:
                     required_quantity = float(input(f"Enter quantity in kg for {item_name}: ").strip())
-                    stock_deduction = required_quantity
                 except ValueError:
                     print("Invalid quantity. Please enter a valid number.")
                     continue
 
-            if stock.check_stock(item_name, stock_deduction):
-                order_items.append((item_name, required_quantity))
-                stock.update_stock(item_name, stock_deduction)
-            else:
-                print(f"Insufficient stock for {item_name}.")
+            result = stock.handle_order_stock(item_name, category_name, required_quantity)
+            if result:
+                order_items.append(result)
         else:
             print("Invalid selection. Please try again.")
 
@@ -144,35 +120,70 @@ def take_order(db, customer_id):
 
     return all_order_items
 
+def manage_categories(db):
+    while True:
+        categories = Categories(db)
+        category_list = categories.get_categories()
+
+        if category_list:
+            print("\nAvailable categories:")
+            for category in category_list:
+                print(f"{category[0]}. {category[1]}")
+
+        print("\n1. Update Category")
+        print("2. Delete Category")
+        print("3. Add Category")
+        print("4. Go Back")
+
+        choice = input("Enter your choice: ").strip()
+
+        if choice == "1":
+            categories.update_category_name()
+        elif choice == "2":
+            categories.delete_category_by_id()
+        elif choice == "3":
+            categories.add_category()
+        elif choice == "4":
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
 def main():
-    db = DBhelper()  
-    initialize_tables(db)  
+    db = DBhelper()
+    initialize_tables(db)
 
     while True:
-        customer_details = get_customer_details(db)
-        if customer_details:
-            customer_id, name, info = customer_details
-            print(f"Thank you for your order, {name}!")
+        print("\n1. Take Order")
+        print("2. Manage Categories")
+        print("3. Exit")
+        
+        choice = input("Enter your choice: ").strip()
+        
+        if choice == "1":
+            customer_details = get_customer_details(db)
+            if customer_details:
+                customer_id, name, info = customer_details
+                print(f"Thank you for your order, {name}!")
 
-            
-            all_order_items = take_order(db, customer_id)
-            
-            if all_order_items:
-                order = Order(db)
-                for item_name, quantity in all_order_items:
-                    order.insert_order(customer_id, [item_name])
-                
-                
-                bill = Bill(db)
-                total_amount = bill.generate_bill(customer_id, all_order_items)
-                print(f"Total Amount to Pay: Rs. {total_amount}")
-        else:
-            print("Failed to add customer. Please try again.")
+                all_order_items = take_order(db, customer_id)
+                if all_order_items:
+                    order = Order(db)
+                    for item_name, quantity in all_order_items:
+                        order.insert_order(customer_id, [item_name])
 
-        continue_session = input("Do you want to start a new session for another customer? (yes/no): ").strip().lower()
-        if continue_session != 'yes':
+                    bill = Bill(db)
+                    total_amount = bill.generate_bill(customer_id, all_order_items)
+                    print(f"Total Amount to Pay: Rs. {total_amount}")
+        
+        elif choice == "2":
+            manage_categories(db)
+        
+        elif choice == "3":
             print("Thank you for using the system!")
             break
+        
+        else:
+            print("Invalid choice. Please try again.")
 
     db.close_connection()
 
