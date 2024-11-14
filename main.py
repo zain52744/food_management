@@ -1,4 +1,4 @@
-from categories import Categories
+from categories import Categorie
 from menu import Menu
 from customer import Customer
 from order import Order
