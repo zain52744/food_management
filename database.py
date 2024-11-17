@@ -29,7 +29,7 @@ class DBhelper:
                 self.conn.rollback()
             finally:
                 cursor.close()
-
+    
     def execute_many(self, query, values):
         if self.conn:
             cursor = self.conn.cursor(buffered=True)
@@ -86,3 +86,5 @@ class DBhelper:
 
         
     #     self.execute_query("SET foreign_key_checks = 1")
+
+
